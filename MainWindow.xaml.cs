@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -17,6 +18,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Ookii.Dialogs.Wpf;
 using Path = System.IO.Path;
+using Newtonsoft.Json;
 
 namespace DuplicateFileCheckerWPF
 {
@@ -27,61 +29,59 @@ namespace DuplicateFileCheckerWPF
     {
         private string _logFilePath = "";
         private string _fileName = "duplicates.txt";
+        private string _selectedLogFolderCaption = "Log Folder: ";
+        private Settings AppSettings;
+        private bool _savedLogFolderExists = true;
 
         public MainWindow()
         {
             InitializeComponent();
+            string json = File.ReadAllText(Directory.GetCurrentDirectory() + @"\settings.json");
+            AppSettings = DeserializeJsonSettings(json);
+
+            if (!string.IsNullOrWhiteSpace(AppSettings.LogDirectory))
+            {
+                if (Directory.Exists(AppSettings.LogDirectory))
+                {
+                    SelectedLogFolder.Text = _selectedLogFolderCaption + AppSettings.LogDirectory;
+                    _savedLogFolderExists = true;
+                }
+                else
+                {
+                    _savedLogFolderExists = false;
+                    SelectedLogFolder.Text = _selectedLogFolderCaption + "No log folder selected";
+                    MessageBox.Show("Previously remembered log folder " + AppSettings.LogDirectory + " cannot be found.");
+                }
+            }
+        }
+
+        private Settings DeserializeJsonSettings(string json)
+        {
+            return JsonConvert.DeserializeObject<Settings>(json);
         }
 
         private void SelectFolder_Click(object sender, EventArgs e)
         {
-            VistaFolderBrowserDialog browseForLogDirectory = new VistaFolderBrowserDialog();
-            bool pathIsSelected;
+            do
+            {
+                if (!_savedLogFolderExists) _logFilePath = GetFolderPath();
+                else break;
+
+                if (_logFilePath == "") return;
+            } while (_logFilePath == "You must select a folder.");
+
+            string folderPathToSearch;
 
             do
             {
-                if (browseForLogDirectory.ShowDialog() == false)
-                {
-                    return;
-                }
+                folderPathToSearch = GetFolderPath();
 
-                if (browseForLogDirectory.SelectedPath == "")
-                {
-                    pathIsSelected = false;
-                    MessageBox.Show("You must select a folder.", "Error");
-                }
-                else
-                {
-                    pathIsSelected = true;
-                }
-            } while (pathIsSelected == false);
+                if (folderPathToSearch == "") return;
+            } while (folderPathToSearch ==  "You must select a folder.");
 
-            _logFilePath = browseForLogDirectory.SelectedPath;
-
-            VistaFolderBrowserDialog folderBrowser = new VistaFolderBrowserDialog();
-
-            do
-            {
-                if (folderBrowser.ShowDialog() == false)
-                {
-                    return;
-                }
-
-                if (folderBrowser.SelectedPath == "")
-                {
-                    pathIsSelected = false;
-                    MessageBox.Show("You must select a folder.", "Error");
-                }
-                else
-                {
-                    pathIsSelected = true;
-                }
-            } while (pathIsSelected == false);
-
-            
-            string heading = "Possible duplicates in " + folderBrowser.SelectedPath + Environment.NewLine;
+            string heading = "Possible duplicates in " + folderPathToSearch + Environment.NewLine;
             string possibleDuplicatesString = "";
-            List<string> fileList = Directory.EnumerateFiles(folderBrowser.SelectedPath).ToList();
+            List<string> fileList = Directory.EnumerateFiles(folderPathToSearch).ToList();
             List<string> fileListClone = new List<string>(fileList);
             ProgressBar.Minimum = 0;
             ProgressBar.Maximum = fileList.Count;
@@ -137,7 +137,26 @@ namespace DuplicateFileCheckerWPF
 
         private void Hint_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("When you click \"Select Folder\" File Explorer will appear — select the folder where you want to store the log file. The log file will contain the possible duplicate files that are found." + Environment.NewLine + Environment.NewLine + "The second File Explorer window will appear after this — select the folder you want to search duplicates for.", "Help");
+            MessageBox.Show("When you click \"Select Folder\" File Explorer will appear — select the folder where you want to store the log file. The log file will contain the possible duplicate files that are found." + Environment.NewLine + Environment.NewLine + "The second File Explorer window will appear after this — select the folder you want to search duplicates for." + Environment.NewLine + Environment.NewLine + "Select 'Remember Log Folder' before selecting the log folder to remember the log folder selected. This only needs to be done once and you will see your selected log folder at the top of the application.", "Help");
+        }
+
+        private string GetFolderPath()
+        {
+            VistaFolderBrowserDialog browseForLogDirectory = new VistaFolderBrowserDialog();
+
+            if (browseForLogDirectory.ShowDialog() == false)
+            {
+                return "";
+            }
+
+            if (browseForLogDirectory.SelectedPath == "")
+            {
+                return "You must select a folder.";
+            }
+            else
+            {
+                return browseForLogDirectory.SelectedPath;
+            }
         }
     }
 }

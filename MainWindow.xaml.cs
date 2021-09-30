@@ -18,7 +18,6 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Ookii.Dialogs.Wpf;
 using Path = System.IO.Path;
-using Newtonsoft.Json;
 
 namespace DuplicateFileCheckerWPF
 {
@@ -27,48 +26,63 @@ namespace DuplicateFileCheckerWPF
     /// </summary>
     public partial class MainWindow : Window
     {
-        private string _logFilePath = "";
-        private string _fileName = "duplicates.txt";
-        private string _selectedLogFolderCaption = "Log Folder: ";
-        private Settings AppSettings;
-        private bool _savedLogFolderExists = true;
+        public string LogFilePath { get; set; } = "";
+        public string FileName { get; set; } = "duplicates.txt";
+        public string LogFolderCaptionPrefix { get; } = "Log Folder: ";
 
         public MainWindow()
         {
             InitializeComponent();
-            string json = File.ReadAllText(Directory.GetCurrentDirectory() + @"\settings.json");
-            AppSettings = DeserializeJsonSettings(json);
 
-            if (!string.IsNullOrWhiteSpace(AppSettings.LogDirectory))
+            if (!string.IsNullOrWhiteSpace(Properties.Settings.Default.LogDirectory))
             {
-                if (Directory.Exists(AppSettings.LogDirectory))
+                if (Directory.Exists(Properties.Settings.Default.LogDirectory))
                 {
-                    SelectedLogFolder.Text = _selectedLogFolderCaption + AppSettings.LogDirectory;
-                    _savedLogFolderExists = true;
+                    SelectedLogFolder.Text = LogFolderCaptionPrefix + Properties.Settings.Default.LogDirectory;
+                    LogFilePath = Properties.Settings.Default.LogDirectory;
                 }
                 else
                 {
-                    _savedLogFolderExists = false;
-                    SelectedLogFolder.Text = _selectedLogFolderCaption + "No log folder selected";
-                    MessageBox.Show("Previously remembered log folder " + AppSettings.LogDirectory + " cannot be found.");
+                    SelectedLogFolder.Text = LogFolderCaptionPrefix + "No log folder selected";
+
+                    if (!string.IsNullOrWhiteSpace(Properties.Settings.Default.LogDirectory))
+                    {
+                        if (MessageBox.Show("Previously remembered log folder " + Properties.Settings.Default.LogDirectory + " cannot be found. Would you like to clear this remembered folder?", "Log folder not found", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                        {
+                            Properties.Settings.Default.LogDirectory = "";
+                        }
+                    }
                 }
             }
         }
 
-        private Settings DeserializeJsonSettings(string json)
-        {
-            return JsonConvert.DeserializeObject<Settings>(json);
-        }
-
-        private void SelectFolder_Click(object sender, EventArgs e)
+        private void SelectLogFolder_Click(object sender, RoutedEventArgs e)
         {
             do
             {
-                if (!_savedLogFolderExists) _logFilePath = GetFolderPath();
-                else break;
+                LogFilePath = GetFolderPath();
 
-                if (_logFilePath == "") return;
-            } while (_logFilePath == "You must select a folder.");
+                if (LogFilePath == "") return;
+                else if (LogFilePath != "You must select a folder.")
+                {
+                    SelectedLogFolder.Text = LogFolderCaptionPrefix + LogFilePath;
+                    if (RememberLogFolder.IsChecked == true)
+                    {
+                        SelectedLogFolder.Text += " (this log folder has been remembered and will be used the next time you use this application)";
+                        Properties.Settings.Default.LogDirectory = LogFilePath;
+                        Properties.Settings.Default.Save();
+                    }
+                }
+            } while (LogFilePath == "You must select a folder.");
+        }
+
+        private void SelectFolderToCheck_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(LogFilePath))
+            {
+                MessageBox.Show("You must select a log folder before checking any files.", "Unable to check files");
+                return;
+            }
 
             string folderPathToSearch;
 
@@ -79,12 +93,12 @@ namespace DuplicateFileCheckerWPF
                 if (folderPathToSearch == "") return;
             } while (folderPathToSearch ==  "You must select a folder.");
 
+            Spinner.Visibility = Visibility.Visible;
+            FilesTextBlock.Text = "";
             string heading = "Possible duplicates in " + folderPathToSearch + Environment.NewLine;
             string possibleDuplicatesString = "";
             List<string> fileList = Directory.EnumerateFiles(folderPathToSearch).ToList();
             List<string> fileListClone = new List<string>(fileList);
-            ProgressBar.Minimum = 0;
-            ProgressBar.Maximum = fileList.Count;
 
             foreach (string file in fileList)
             {
@@ -106,7 +120,7 @@ namespace DuplicateFileCheckerWPF
                         if (fileMatch > 1)
                         {
                             string fileName = FileNameOnly(clonedFile);
-                            FilesListBox.Items.Add(fileName);
+                            FilesTextBlock.Text += fileName + Environment.NewLine;
                             possibleDuplicatesString += "   •" + fileName + Environment.NewLine;
                         }
                     }
@@ -116,17 +130,16 @@ namespace DuplicateFileCheckerWPF
                 {
                     fileListClone.RemoveAt(indicesToRemove[i]);
                 }
-
-                Thread.Sleep(100);
-                ProgressBar.Value++;
             }
 
+            FilesTextBlock.Text = FilesTextBlock.Text.Remove(FilesTextBlock.Text.LastIndexOf(Environment.NewLine), Environment.NewLine.Length);
             string content = "--- START OF LOG (" + DateTime.Now.ToString("U") + ") ---" + Environment.NewLine + heading + possibleDuplicatesString + Environment.NewLine + "--- END OF LOG ---" + Environment.NewLine;
-            File.AppendAllText(Path.Combine(_logFilePath + @"\", _fileName), content);
-            
+            File.AppendAllText(Path.Combine(LogFilePath + @"\", FileName), content);
+            Spinner.Visibility = Visibility.Collapsed;
+
             if (MessageBox.Show("Do you want to view the log file now? If you click 'No' you can still view it later.", "View log file?", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
             {
-                Process.Start("notepad.exe", _logFilePath + @"\" + _fileName);
+                Process.Start("notepad.exe", LogFilePath + @"\" + FileName);
             }
         }
 

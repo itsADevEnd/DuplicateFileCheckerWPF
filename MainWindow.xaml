@@ -4,18 +4,20 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DuplicateFileCheckerWPF"
+        xmlns:fa="http://schemas.fontawesome.io/icons/"
         mc:Ignorable="d"
-        Title="Duplicate File Checker" Height="450" Width="450" ResizeMode="CanMinimize" WindowStartupLocation="CenterScreen">
+        Title="Duplicate File Checker" Height="573" Width="450" ResizeMode="CanMinimize" WindowStartupLocation="CenterScreen">
     <Grid>
-        <Button Content="Select Folder" HorizontalAlignment="Center" Margin="0,145,0,0" VerticalAlignment="Top" Click="SelectFolder_Click" Height="35" Width="136" FontSize="16" Padding="5,5,5,5" FontFamily="Century Gothic"/>
-        <TextBlock Name="SelectedLogFolder" Text="Selected Log Folder: " HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,14,0,0" />
-        <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" Text="Click 'Select Folder' to select a folder to store the log file and the folder to check for duplicates." VerticalAlignment="Top" Width="406" Height="41" TextAlignment="Center" FontFamily="Century Gothic" FontSize="16" Margin="0,87,0,0"/>
+        <Button Content="Select Log Folder" HorizontalAlignment="Center" Margin="0,157,0,0" VerticalAlignment="Top" Click="SelectLogFolder_Click" Height="35" Width="194" FontSize="16" Padding="5,5,5,5" FontFamily="Century Gothic"/>
+        <Button Content="Select Folder to Check" HorizontalAlignment="Center" Margin="0,205,0,0" VerticalAlignment="Top" Click="SelectFolderToCheck_Click" Height="35" Width="194" FontSize="16" Padding="5,5,5,5" FontFamily="Century Gothic"/>
+        <TextBlock Name="SelectedLogFolder" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,14,0,0" TextWrapping="Wrap" Width="300" TextAlignment="Center"/>
+        <CheckBox Name="RememberLogFolder" Content="Remember Log Folder" HorizontalAlignment="Center" Margin="0,75,0,0" VerticalAlignment="Top"/>
+        <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" Text="Click 'Select Folder' to select a folder to store the log file and the folder to check for duplicates." VerticalAlignment="Top" Width="406" Height="41" TextAlignment="Center" FontFamily="Century Gothic" FontSize="16" Margin="0,105,0,0"/>
         <Button Content="Help" HorizontalAlignment="Left" VerticalAlignment="Top" Width="44" FontFamily="Century Gothic" Click="Hint_Click" FontSize="14" Margin="10,10,0,0" Height="23"/>
-        <ProgressBar Name="ProgressBar" HorizontalAlignment="Center" Height="28" VerticalAlignment="Bottom" Width="406" Margin="0,0,0,10"/>
-        <TextBlock Text="Duplicate Files" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,185,0,0"/>
-        <ScrollViewer Margin="22,207,22,43">
-            <ListBox Name="FilesListBox"/>
-        </ScrollViewer>
-        <CheckBox Name="RememberLogFolder" Content="Remember Log Folder" HorizontalAlignment="Left" Margin="10,49,0,0" VerticalAlignment="Top"/>
+        <TextBlock Text="Duplicate Files" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,252,0,0"/>
+        <ScrollViewer Margin="22,279,22,43">
+                <TextBlock Name="FilesTextBlock"/>
+            </ScrollViewer>
+            <fa:ImageAwesome Name="Spinner" Icon="Refresh" Height="48" Width="48" Spin="True" Visibility="Collapsed"/>
     </Grid>
 </Window>

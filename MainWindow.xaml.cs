@@ -102,6 +102,7 @@ namespace DuplicateFileCheckerWPF
 
             foreach (string file in fileList)
             {
+                bool outerFileAdded = false;
                 int fileMatch = 0;
                 FileInfo fileInfo = new FileInfo(file);
                 int clonedFileListIndex = 0;
@@ -119,9 +120,19 @@ namespace DuplicateFileCheckerWPF
 
                         if (fileMatch > 1)
                         {
-                            string fileName = FileNameOnly(clonedFile);
-                            FilesTextBlock.Text += fileName + Environment.NewLine;
-                            possibleDuplicatesString += "   •" + fileName + Environment.NewLine;
+                            string duplicatesOf = "";
+
+                            if (!outerFileAdded)
+                            {
+                                string fileName = FileNameOnly(file);
+                                possibleDuplicatesString += "> Duplicates of: " + fileName + Environment.NewLine;
+                                duplicatesOf = "> Duplicates of: " + fileName + Environment.NewLine;
+                                outerFileAdded = true;
+                            }
+
+                            string clonedFileName = FileNameOnly(clonedFile);
+                            FilesTextBlock.Text += duplicatesOf + clonedFileName + Environment.NewLine;
+                            possibleDuplicatesString += "   " + clonedFileName + Environment.NewLine;
                         }
                     }
                 }
@@ -132,8 +143,8 @@ namespace DuplicateFileCheckerWPF
                 }
             }
 
-            FilesTextBlock.Text = FilesTextBlock.Text.Remove(FilesTextBlock.Text.LastIndexOf(Environment.NewLine), Environment.NewLine.Length);
-            string content = "--- START OF LOG (" + DateTime.Now.ToString("U") + ") ---" + Environment.NewLine + heading + possibleDuplicatesString + Environment.NewLine + "--- END OF LOG ---" + Environment.NewLine;
+            FilesTextBlock.Text = FormatString(FilesTextBlock.Text);
+            string content = "--- START OF LOG (" + DateTime.Now.ToString("U") + ") ---" + Environment.NewLine + heading + possibleDuplicatesString + "--- END OF LOG ---" + Environment.NewLine;
             File.AppendAllText(Path.Combine(LogFilePath + @"\", FileName), content);
             Spinner.Visibility = Visibility.Collapsed;
 
@@ -170,6 +181,11 @@ namespace DuplicateFileCheckerWPF
             {
                 return browseForLogDirectory.SelectedPath;
             }
+        }
+
+        private string FormatString(string stringToFormat)
+        {
+            return stringToFormat.Remove(stringToFormat.LastIndexOf(Environment.NewLine), Environment.NewLine.Length);
         }
     }
 }

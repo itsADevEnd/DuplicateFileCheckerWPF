@@ -161,7 +161,7 @@ namespace DuplicateFileCheckerWPF
 
         private void Hint_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("When you click \"Select Folder\" File Explorer will appear — select the folder where you want to store the log file. The log file will contain the possible duplicate files that are found." + Environment.NewLine + Environment.NewLine + "The second File Explorer window will appear after this — select the folder you want to search duplicates for." + Environment.NewLine + Environment.NewLine + "Select 'Remember Log Folder' before selecting the log folder to remember the log folder selected. This only needs to be done once and you will see your selected log folder at the top of the application.", "Help");
+            MessageBox.Show("When you click \"Select Folder\" File Explorer will appear — select the folder where you want to store the log file. The log file will contain the possible duplicate files that are found." + Environment.NewLine + Environment.NewLine + "The second File Explorer window will appear after this — select the folder you want to search duplicates for." + Environment.NewLine + Environment.NewLine + "Select 'Remember Log Folder' before selecting the log folder to remember the log folder selected. This only needs to be done once and you will see your selected log folder at the top of the application." + Environment.NewLine + Environment.NewLine + "Select 'Advanced File Checking' to compare files' text against each other. For example, check the text in File 1 against the text in File 2.", "Help");
         }
 
         private string GetFolderPath()

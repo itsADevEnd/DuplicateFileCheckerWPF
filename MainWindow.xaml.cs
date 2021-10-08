@@ -112,7 +112,7 @@ namespace DuplicateFileCheckerWPF
                 {
                     FileInfo clonedFileInfo = new FileInfo(clonedFile);
 
-                    if (fileInfo.Length.Equals(clonedFileInfo.Length))
+                    if (fileInfo.Length.Equals(clonedFileInfo.Length) && CheckFiles(file, clonedFile))
                     {
                         fileMatch++;
                         indicesToRemove.Add(clonedFileListIndex);
@@ -161,7 +161,7 @@ namespace DuplicateFileCheckerWPF
 
         private void Hint_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("When you click \"Select Folder\" File Explorer will appear — select the folder where you want to store the log file. The log file will contain the possible duplicate files that are found." + Environment.NewLine + Environment.NewLine + "The second File Explorer window will appear after this — select the folder you want to search duplicates for." + Environment.NewLine + Environment.NewLine + "Select 'Remember Log Folder' before selecting the log folder to remember the log folder selected. This only needs to be done once and you will see your selected log folder at the top of the application." + Environment.NewLine + Environment.NewLine + "Select 'Advanced File Checking' to compare files' text against each other. For example, check the text in File 1 against the text in File 2.", "Help");
+            MessageBox.Show("When you click \"Select Folder\" File Explorer will appear — select the folder where you want to store the log file. The log file will contain the possible duplicate files that are found." + Environment.NewLine + Environment.NewLine + "The second File Explorer window will appear after this — select the folder you want to search duplicates for." + Environment.NewLine + Environment.NewLine + "Select 'Remember Log Folder' before selecting the log folder to remember the log folder selected. This only needs to be done once and you will see your selected log folder at the top of the application." + Environment.NewLine + Environment.NewLine + "Select 'Advanced File Checking' to compare files' text against each other. For example, check the text in File 1 against the text in File 2." + Environment.NewLine + Environment.NewLine + "Click the log folder text at the top of the application to open the log file.", "Help");
         }
 
         private string GetFolderPath()
@@ -183,9 +183,26 @@ namespace DuplicateFileCheckerWPF
             }
         }
 
+        /// <summary>
+        /// Checks if the content of the given files by path are equal.
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <param name="clonedFilePath"></param>
+        /// <returns>True if the content in both files is equal, otherwise false.</returns>
+        private bool CheckFiles(string filePath, string clonedFilePath)
+        {
+            return File.ReadAllText(filePath) == File.ReadAllText(clonedFilePath);
+        }
+
         private string FormatString(string stringToFormat)
         {
-            return stringToFormat.Remove(stringToFormat.LastIndexOf(Environment.NewLine), Environment.NewLine.Length);
+            if (!string.IsNullOrWhiteSpace(stringToFormat)) return stringToFormat.Remove(stringToFormat.LastIndexOf(Environment.NewLine), Environment.NewLine.Length);
+            return "";
+        }
+
+        private void SelectedLogFolder_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (File.Exists(LogFilePath + @"\" + FileName)) Process.Start("notepad.exe", LogFilePath + @"\" + FileName);
         }
     }
 }

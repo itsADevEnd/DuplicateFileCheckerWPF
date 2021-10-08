@@ -10,10 +10,9 @@
     <Grid>
         <Button Content="Select Log Folder" HorizontalAlignment="Center" Margin="0,187,0,0" VerticalAlignment="Top" Click="SelectLogFolder_Click" Height="35" Width="194" FontSize="16" Padding="5,5,5,5" FontFamily="Century Gothic"/>
         <Button Content="Select Folder to Check" HorizontalAlignment="Center" Margin="0,235,0,0" VerticalAlignment="Top" Click="SelectFolderToCheck_Click" Height="35" Width="194" FontSize="16" Padding="5,5,5,5" FontFamily="Century Gothic"/>
-        <TextBlock Name="SelectedLogFolder" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,14,0,0" TextWrapping="Wrap" Width="300" TextAlignment="Center"/>
+        <TextBlock Name="SelectedLogFolder" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,14,0,0" TextWrapping="Wrap" Width="300" TextAlignment="Center" PreviewMouseDown="SelectedLogFolder_PreviewMouseDown"/>
         <CheckBox Name="RememberLogFolder" Content="Remember Log Folder" HorizontalAlignment="Center" Margin="0,85,0,0" VerticalAlignment="Top"/>
-        <CheckBox Name="AdvancedFileChecking" Content="Advanced File Checking" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,105,0,0"/>
-        <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" Text="Click 'Select Folder' to select a folder to store the log file and the folder to check for duplicates." VerticalAlignment="Top" Width="406" Height="41" TextAlignment="Center" FontFamily="Century Gothic" FontSize="16" Margin="0,135,0,0"/>
+        <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" Text="Click 'Select Folder' to select a folder to store the log file and the folder to check for duplicates." VerticalAlignment="Top" Width="406" Height="41" TextAlignment="Center" FontFamily="Century Gothic" FontSize="16" Margin="0,119,0,0"/>
         <Button Content="Help" HorizontalAlignment="Left" VerticalAlignment="Top" Width="44" FontFamily="Century Gothic" Click="Hint_Click" FontSize="14" Margin="10,10,0,0" Height="23"/>
         <TextBlock Text="Duplicate Files" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,282,0,0"/>
         <ScrollViewer Margin="22,309,22,13">
